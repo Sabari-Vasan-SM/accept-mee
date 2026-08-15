@@ -195,7 +195,11 @@ class AgentHeroCard extends ConsumerWidget {
 
           const SizedBox(height: 20),
 
-          // Progress Track with Percentage
+          // Progress track.
+          //
+          // Antigravity does not report a completion percentage, so the server
+          // sends 0 rather than inventing one. Treat 0 as indeterminate: an
+          // animated bar while the agent is working, a flat one when it isn't.
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -203,34 +207,37 @@ class AgentHeroCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Task Completion',
+                    state.progress > 0 ? 'Task Completion' : 'Agent Activity',
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.textMuted,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryContainer,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${state.progress}%',
-                      style: AppTypography.codeSnippet.copyWith(
-                        color: AppColors.onPrimaryContainer,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 12,
+                  if (state.progress > 0)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryContainer,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${state.progress}%',
+                        style: AppTypography.codeSnippet.copyWith(
+                          color: AppColors.onPrimaryContainer,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 10),
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: LinearProgressIndicator(
-                  value: state.progress / 100.0,
+                  value: state.progress > 0
+                      ? state.progress / 100.0
+                      : (state.status == AgentStatus.working ? null : 0.0),
                   minHeight: 10,
                   backgroundColor: AppColors.surfaceContainerLowest,
                   valueColor: AlwaysStoppedAnimation<Color>(statusColor),

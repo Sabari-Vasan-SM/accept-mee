@@ -8,7 +8,6 @@ class SettingsState {
   final String deviceName;
   final bool biometricsEnabled;
   final bool hapticsEnabled;
-  final bool useMockClient;
 
   const SettingsState({
     required this.serverHost,
@@ -17,8 +16,28 @@ class SettingsState {
     required this.deviceName,
     required this.biometricsEnabled,
     required this.hapticsEnabled,
-    required this.useMockClient,
   });
+
+  bool get isPaired => (authToken ?? '').isNotEmpty;
+
+  SettingsState copyWith({
+    String? serverHost,
+    int? serverPort,
+    String? authToken,
+    bool clearAuthToken = false,
+    String? deviceName,
+    bool? biometricsEnabled,
+    bool? hapticsEnabled,
+  }) {
+    return SettingsState(
+      serverHost: serverHost ?? this.serverHost,
+      serverPort: serverPort ?? this.serverPort,
+      authToken: clearAuthToken ? null : (authToken ?? this.authToken),
+      deviceName: deviceName ?? this.deviceName,
+      biometricsEnabled: biometricsEnabled ?? this.biometricsEnabled,
+      hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
+    );
+  }
 }
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
@@ -32,78 +51,39 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
           deviceName: _ref.read(storageServiceProvider).deviceName,
           biometricsEnabled: _ref.read(storageServiceProvider).biometricsEnabled,
           hapticsEnabled: _ref.read(storageServiceProvider).hapticsEnabled,
-          useMockClient: _ref.read(storageServiceProvider).useMockClient,
         ));
 
   Future<void> updateServer(String host, int port) async {
     final storage = _ref.read(storageServiceProvider);
     await storage.setServerHost(host);
     await storage.setServerPort(port);
-    state = SettingsState(
-      serverHost: host,
-      serverPort: port,
-      authToken: state.authToken,
-      deviceName: state.deviceName,
-      biometricsEnabled: state.biometricsEnabled,
-      hapticsEnabled: state.hapticsEnabled,
-      useMockClient: state.useMockClient,
-    );
+    state = state.copyWith(serverHost: host, serverPort: port);
+  }
+
+  /// Stores the token captured from a pairing QR code.
+  Future<void> setAuthToken(String token) async {
+    await _ref.read(storageServiceProvider).setAuthToken(token);
+    state = state.copyWith(authToken: token);
+  }
+
+  Future<void> setDeviceName(String name) async {
+    await _ref.read(storageServiceProvider).setDeviceName(name);
+    state = state.copyWith(deviceName: name);
   }
 
   Future<void> setBiometrics(bool enabled) async {
-    final storage = _ref.read(storageServiceProvider);
-    await storage.setBiometricsEnabled(enabled);
-    state = SettingsState(
-      serverHost: state.serverHost,
-      serverPort: state.serverPort,
-      authToken: state.authToken,
-      deviceName: state.deviceName,
-      biometricsEnabled: enabled,
-      hapticsEnabled: state.hapticsEnabled,
-      useMockClient: state.useMockClient,
-    );
+    await _ref.read(storageServiceProvider).setBiometricsEnabled(enabled);
+    state = state.copyWith(biometricsEnabled: enabled);
   }
 
   Future<void> setHaptics(bool enabled) async {
-    final storage = _ref.read(storageServiceProvider);
-    await storage.setHapticsEnabled(enabled);
-    state = SettingsState(
-      serverHost: state.serverHost,
-      serverPort: state.serverPort,
-      authToken: state.authToken,
-      deviceName: state.deviceName,
-      biometricsEnabled: state.biometricsEnabled,
-      hapticsEnabled: enabled,
-      useMockClient: state.useMockClient,
-    );
-  }
-
-  Future<void> setUseMockClient(bool enabled) async {
-    final storage = _ref.read(storageServiceProvider);
-    await storage.setUseMockClient(enabled);
-    state = SettingsState(
-      serverHost: state.serverHost,
-      serverPort: state.serverPort,
-      authToken: state.authToken,
-      deviceName: state.deviceName,
-      biometricsEnabled: state.biometricsEnabled,
-      hapticsEnabled: state.hapticsEnabled,
-      useMockClient: enabled,
-    );
+    await _ref.read(storageServiceProvider).setHapticsEnabled(enabled);
+    state = state.copyWith(hapticsEnabled: enabled);
   }
 
   Future<void> clearAuth() async {
-    final storage = _ref.read(storageServiceProvider);
-    await storage.clearSession();
-    state = SettingsState(
-      serverHost: state.serverHost,
-      serverPort: state.serverPort,
-      authToken: null,
-      deviceName: state.deviceName,
-      biometricsEnabled: state.biometricsEnabled,
-      hapticsEnabled: state.hapticsEnabled,
-      useMockClient: state.useMockClient,
-    );
+    await _ref.read(storageServiceProvider).clearSession();
+    state = state.copyWith(clearAuthToken: true);
   }
 }
 

@@ -56,7 +56,11 @@ abstract class AntigravityClient {
   Future<bool> retryTask();
 
   Future<bool> selectProject(String projectId);
-  Future<void> triggerDemoScenario(String scenarioType);
+
+  /// Human-readable failures worth surfacing (bad token, agent not configured,
+  /// instruction rejected). Emitted rather than thrown so the UI can show a
+  /// snackbar without every call site wrapping in try/catch.
+  Stream<String> get errorStream;
 
   void dispose();
 }

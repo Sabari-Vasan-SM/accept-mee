@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/utils/haptic_feedback_util.dart';
+import '../../providers/antigravity_provider.dart';
 import '../../providers/approvals_provider.dart';
 
 class AppShell extends ConsumerWidget {
@@ -50,6 +51,24 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pendingApprovalsCount = ref.watch(pendingApprovalsCountProvider);
     final selectedIndex = _calculateSelectedIndex(context);
+
+    // One place to surface real failures from the desktop — a rejected token,
+    // an unconfigured agent command, a command the server refused.
+    ref.listen(clientErrorProvider, (previous, next) {
+      final message = next.value;
+      if (message == null || message.isEmpty) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.errorContainer,
+          content: Text(
+            message,
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.onErrorContainer),
+          ),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      );
+    });
 
     return Scaffold(
       body: child,
