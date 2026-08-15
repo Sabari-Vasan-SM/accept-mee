@@ -20,11 +20,14 @@ class ApprovalsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Pending Approvals',
-          style: AppTypography.titleLarge,
+          style: AppTypography.headlineMedium,
         ),
         actions: [
-          // Demo trigger helper button
-          IconButton(
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surfaceContainerHigh,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
             icon: const Icon(Icons.add_alert_rounded, color: AppColors.primary),
             tooltip: 'Simulate Approval Request',
             onPressed: () {
@@ -32,6 +35,7 @@ class ApprovalsScreen extends ConsumerWidget {
               client.triggerDemoScenario('db_migration');
             },
           ),
+          const SizedBox(width: 14),
         ],
       ),
       body: approvals.isEmpty
@@ -42,32 +46,36 @@ class ApprovalsScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(28),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceCard,
+                        color: AppColors.surfaceContainer,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.surfaceBorder),
+                        border: Border.all(color: AppColors.outlineVariant),
                       ),
                       child: const Icon(
                         Icons.verified_user_rounded,
-                        size: 48,
+                        size: 52,
                         color: AppColors.statusSuccess,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     Text(
                       'All Clear',
-                      style: AppTypography.titleLarge.copyWith(fontSize: 22),
+                      style: AppTypography.headlineLarge.copyWith(fontSize: 24),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     Text(
                       'No pending permissions or approval requests from Antigravity.',
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyMedium,
                     ),
-                    const SizedBox(height: 24),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.bolt_rounded, size: 18),
+                    const SizedBox(height: 28),
+                    FilledButton.tonalIcon(
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      ),
+                      icon: const Icon(Icons.bolt_rounded, size: 20),
                       label: const Text('Simulate Test Request'),
                       onPressed: () {
                         HapticUtil.medium();

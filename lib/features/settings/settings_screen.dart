@@ -43,7 +43,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Companion Settings', style: AppTypography.titleLarge),
+        title: Text('Companion Settings', style: AppTypography.headlineMedium),
       ),
       body: ListView(
         padding: const EdgeInsets.all(18),
@@ -52,11 +52,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _buildSectionHeader('Desktop Companion Bridge'),
           const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.surfaceBorder),
+              color: AppColors.surfaceContainer,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: AppColors.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,34 +64,43 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Status', style: AppTypography.bodyMedium),
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: connectionStatus == ConnectionStatus.connected
-                                ? AppColors.statusSuccess
-                                : AppColors.statusError,
+                    Text('Status', style: AppTypography.titleMedium),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: connectionStatus == ConnectionStatus.connected
+                            ? AppColors.tertiaryContainer
+                            : AppColors.errorContainer,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: connectionStatus == ConnectionStatus.connected
+                                  ? AppColors.tertiary
+                                  : AppColors.statusError,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          connectionStatus.label,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: connectionStatus == ConnectionStatus.connected
-                                ? AppColors.statusSuccess
-                                : AppColors.statusError,
-                            fontWeight: FontWeight.w700,
+                          const SizedBox(width: 6),
+                          Text(
+                            connectionStatus.label,
+                            style: AppTypography.labelSmall.copyWith(
+                              color: connectionStatus == ConnectionStatus.connected
+                                  ? AppColors.onTertiaryContainer
+                                  : AppColors.onErrorContainer,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     Expanded(
@@ -103,8 +112,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           labelText: 'Host IP',
                           labelStyle: AppTypography.labelSmall,
                           filled: true,
-                          fillColor: AppColors.background,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          fillColor: AppColors.surfaceContainerLowest,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: AppColors.outlineVariant),
+                          ),
                         ),
                       ),
                     ),
@@ -119,17 +131,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           labelText: 'Port',
                           labelStyle: AppTypography.labelSmall,
                           filled: true,
-                          fillColor: AppColors.background,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          fillColor: AppColors.surfaceContainerLowest,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: AppColors.outlineVariant),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  height: 50,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
                     onPressed: () async {
                       HapticUtil.medium();
                       final host = _hostController.text.trim();
@@ -151,9 +170,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.surfaceBorder),
+              color: AppColors.surfaceContainer,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: AppColors.outlineVariant),
             ),
             child: Column(
               children: [
@@ -169,34 +188,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.bolt_rounded, color: AppColors.statusWarning),
-                  title: Text('Trigger DB Migration Approval', style: AppTypography.bodyLarge.copyWith(fontSize: 14)),
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.statusWarning.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.bolt_rounded, color: AppColors.statusWarning, size: 20),
+                  ),
+                  title: Text('Trigger DB Migration Approval', style: AppTypography.bodyLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w700)),
                   subtitle: Text('Simulates arrival of a high-risk approval request', style: AppTypography.bodyMedium.copyWith(fontSize: 12)),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
                     HapticUtil.medium();
                     client.triggerDemoScenario('db_migration');
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Simulated approval request sent! Check the Approvals tab.'),
+                      SnackBar(
+                        backgroundColor: AppColors.surfaceContainerHighest,
+                        content: Text('Simulated approval request sent! Check Approvals tab.', style: AppTypography.bodyMedium),
                         behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                     );
                   },
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.build_circle_rounded, color: AppColors.primary),
-                  title: Text('Trigger Production Build Approval', style: AppTypography.bodyLarge.copyWith(fontSize: 14)),
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.build_circle_rounded, color: AppColors.primary, size: 20),
+                  ),
+                  title: Text('Trigger Production Build Approval', style: AppTypography.bodyLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w700)),
                   subtitle: Text('Simulates npm run build permission request', style: AppTypography.bodyMedium.copyWith(fontSize: 12)),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
                     HapticUtil.medium();
                     client.triggerDemoScenario('build');
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Simulated build approval sent!'),
+                      SnackBar(
+                        backgroundColor: AppColors.surfaceContainerHighest,
+                        content: Text('Simulated build approval sent!', style: AppTypography.bodyMedium),
                         behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                     );
                   },
@@ -212,9 +249,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.surfaceBorder),
+              color: AppColors.surfaceContainer,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: AppColors.outlineVariant),
             ),
             child: Column(
               children: [
@@ -241,8 +278,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.delete_outline_rounded, color: AppColors.statusError),
-                  title: Text('Clear Session & Unpair', style: AppTypography.bodyLarge.copyWith(color: AppColors.statusError, fontSize: 14)),
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.statusError.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.delete_outline_rounded, color: AppColors.statusError, size: 20),
+                  ),
+                  title: Text('Clear Session & Unpair', style: AppTypography.bodyLarge.copyWith(color: AppColors.statusError, fontSize: 14, fontWeight: FontWeight.w700)),
                   onTap: () {
                     HapticUtil.error();
                     settingsNotifier.clearAuth();
@@ -263,7 +307,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       title.toUpperCase(),
       style: AppTypography.labelSmall.copyWith(
         color: AppColors.primary,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w900,
         letterSpacing: 1.0,
       ),
     );

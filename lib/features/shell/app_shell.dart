@@ -55,72 +55,75 @@ class AppShell extends ConsumerWidget {
       body: child,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.surfaceContainerLow,
           border: Border(
-            top: BorderSide(color: AppColors.surfaceBorder, width: 1),
+            top: BorderSide(color: AppColors.outlineVariant, width: 1),
           ),
         ),
-        child: NavigationBar(
-          selectedIndex: selectedIndex,
-          onDestinationSelected: (idx) => _onItemTapped(idx, context),
-          backgroundColor: AppColors.surfaceElevated,
-          indicatorColor: AppColors.primary.withOpacity(0.18),
-          elevation: 0,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined, color: AppColors.textMuted),
-              selectedIcon: Icon(Icons.dashboard_rounded, color: AppColors.primary),
-              label: 'Home',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.stream_rounded, color: AppColors.textMuted),
-              selectedIcon: Icon(Icons.stream_rounded, color: AppColors.primary),
-              label: 'Activity',
-            ),
-            NavigationDestination(
-              icon: Badge(
-                isLabelVisible: pendingApprovalsCount > 0,
-                label: Text(
-                  '$pendingApprovalsCount',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                backgroundColor: AppColors.statusApproval,
-                child: const Icon(Icons.verified_user_outlined, color: AppColors.textMuted),
+        child: SafeArea(
+          child: NavigationBar(
+            selectedIndex: selectedIndex,
+            onDestinationSelected: (idx) => _onItemTapped(idx, context),
+            backgroundColor: Colors.transparent,
+            indicatorColor: AppColors.primaryContainer,
+            elevation: 0,
+            height: 66,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: [
+              const NavigationDestination(
+                icon: Icon(Icons.grid_view_rounded, color: AppColors.textMuted),
+                selectedIcon: Icon(Icons.grid_view_rounded, color: AppColors.onPrimaryContainer),
+                label: 'Home',
               ),
-              selectedIcon: Badge(
-                isLabelVisible: pendingApprovalsCount > 0,
-                label: Text(
-                  '$pendingApprovalsCount',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                backgroundColor: AppColors.statusApproval,
-                child: const Icon(Icons.verified_user_rounded, color: AppColors.primary),
+              const NavigationDestination(
+                icon: Icon(Icons.insights_rounded, color: AppColors.textMuted),
+                selectedIcon: Icon(Icons.insights_rounded, color: AppColors.onPrimaryContainer),
+                label: 'Activity',
               ),
-              label: 'Approvals',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.folder_outlined, color: AppColors.textMuted),
-              selectedIcon: Icon(Icons.folder_rounded, color: AppColors.primary),
-              label: 'Projects',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.devices_rounded, color: AppColors.textMuted),
-              selectedIcon: Icon(Icons.devices_rounded, color: AppColors.primary),
-              label: 'Devices',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.tune_rounded, color: AppColors.textMuted),
-              selectedIcon: Icon(Icons.tune_rounded, color: AppColors.primary),
-              label: 'Settings',
-            ),
-          ],
+              NavigationDestination(
+                icon: Badge(
+                  isLabelVisible: pendingApprovalsCount > 0,
+                  label: Text(
+                    '$pendingApprovalsCount',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  backgroundColor: AppColors.statusApproval,
+                  child: const Icon(Icons.shield_outlined, color: AppColors.textMuted),
+                ),
+                selectedIcon: Badge(
+                  isLabelVisible: pendingApprovalsCount > 0,
+                  label: Text(
+                    '$pendingApprovalsCount',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  backgroundColor: AppColors.statusApproval,
+                  child: const Icon(Icons.shield_rounded, color: AppColors.onPrimaryContainer),
+                ),
+                label: 'Approvals',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.folder_open_rounded, color: AppColors.textMuted),
+                selectedIcon: Icon(Icons.folder_rounded, color: AppColors.onPrimaryContainer),
+                label: 'Projects',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.devices_rounded, color: AppColors.textMuted),
+                selectedIcon: Icon(Icons.devices_rounded, color: AppColors.onPrimaryContainer),
+                label: 'Devices',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.tune_rounded, color: AppColors.textMuted),
+                selectedIcon: Icon(Icons.tune_rounded, color: AppColors.onPrimaryContainer),
+                label: 'Settings',
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -16,11 +16,11 @@ class LiveActivityScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Live Agent Activity', style: AppTypography.titleLarge),
+        title: Text('Live Agent Activity', style: AppTypography.headlineMedium),
       ),
       body: Column(
         children: [
-          // Filter Chips Row
+          // M3 Expressive Filter Chips Row
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -30,6 +30,7 @@ class LiveActivityScreen extends ConsumerWidget {
                   context,
                   ref,
                   label: 'All',
+                  icon: Icons.all_inclusive_rounded,
                   filter: ActivityFilter.all,
                   isSelected: activeFilter == ActivityFilter.all,
                 ),
@@ -38,6 +39,7 @@ class LiveActivityScreen extends ConsumerWidget {
                   context,
                   ref,
                   label: 'File Edits',
+                  icon: Icons.edit_note_rounded,
                   filter: ActivityFilter.fileEdits,
                   isSelected: activeFilter == ActivityFilter.fileEdits,
                 ),
@@ -46,6 +48,7 @@ class LiveActivityScreen extends ConsumerWidget {
                   context,
                   ref,
                   label: 'Terminal',
+                  icon: Icons.terminal_rounded,
                   filter: ActivityFilter.commands,
                   isSelected: activeFilter == ActivityFilter.commands,
                 ),
@@ -54,6 +57,7 @@ class LiveActivityScreen extends ConsumerWidget {
                   context,
                   ref,
                   label: 'Tests',
+                  icon: Icons.science_rounded,
                   filter: ActivityFilter.tests,
                   isSelected: activeFilter == ActivityFilter.tests,
                 ),
@@ -62,6 +66,7 @@ class LiveActivityScreen extends ConsumerWidget {
                   context,
                   ref,
                   label: 'Approvals',
+                  icon: Icons.shield_rounded,
                   filter: ActivityFilter.approvals,
                   isSelected: activeFilter == ActivityFilter.approvals,
                 ),
@@ -77,19 +82,27 @@ class LiveActivityScreen extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.history_rounded, size: 48, color: AppColors.textMuted),
-                        const SizedBox(height: 14),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainer,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.outlineVariant),
+                          ),
+                          child: const Icon(Icons.stream_rounded, size: 40, color: AppColors.textMuted),
+                        ),
+                        const SizedBox(height: 16),
                         Text(
-                          'No events matching this filter',
+                          'No events in this category',
                           style: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
                         ),
                       ],
                     ),
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(18),
                     itemCount: filteredEvents.length,
-                    separatorBuilder: (ctx, idx) => const SizedBox(height: 10),
+                    separatorBuilder: (ctx, idx) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       return ActivityItemTile(event: filteredEvents[index]);
                     },
@@ -104,27 +117,33 @@ class LiveActivityScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref, {
     required String label,
+    required IconData icon,
     required ActivityFilter filter,
     required bool isSelected,
   }) {
     return FilterChip(
+      avatar: Icon(
+        icon,
+        size: 16,
+        color: isSelected ? AppColors.onPrimaryContainer : AppColors.textSecondary,
+      ),
       label: Text(label),
       selected: isSelected,
       onSelected: (_) {
         HapticUtil.selection();
         ref.read(activityFilterProvider.notifier).state = filter;
       },
-      selectedColor: AppColors.primary.withOpacity(0.2),
-      checkmarkColor: AppColors.primary,
+      selectedColor: AppColors.primaryContainer,
+      checkmarkColor: AppColors.onPrimaryContainer,
       labelStyle: AppTypography.labelSmall.copyWith(
-        color: isSelected ? AppColors.primary : AppColors.textSecondary,
-        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        color: isSelected ? AppColors.onPrimaryContainer : AppColors.textSecondary,
+        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
       ),
-      backgroundColor: AppColors.surfaceCard,
+      backgroundColor: AppColors.surfaceContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? AppColors.primary : AppColors.surfaceBorder,
+          color: isSelected ? AppColors.primary : AppColors.outlineVariant,
         ),
       ),
     );

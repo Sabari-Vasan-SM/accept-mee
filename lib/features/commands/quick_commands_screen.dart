@@ -17,9 +17,13 @@ class QuickCommandsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quick Commands', style: AppTypography.titleLarge),
+        title: Text('Quick Commands', style: AppTypography.headlineMedium),
         actions: [
-          IconButton(
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surfaceContainerHigh,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
             icon: const Icon(Icons.add_rounded, color: AppColors.primary),
             tooltip: 'Add Custom Command',
             onPressed: () {
@@ -30,7 +34,12 @@ class QuickCommandsScreen extends ConsumerWidget {
               );
             },
           ),
-          IconButton(
+          const SizedBox(width: 8),
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surfaceContainerHigh,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
             icon: const Icon(Icons.restore_rounded, color: AppColors.textMuted),
             tooltip: 'Reset Defaults',
             onPressed: () {
@@ -38,6 +47,7 @@ class QuickCommandsScreen extends ConsumerWidget {
               ref.read(quickCommandsProvider.notifier).resetDefaults();
             },
           ),
+          const SizedBox(width: 14),
         ],
       ),
       body: ListView.separated(
@@ -50,25 +60,29 @@ class QuickCommandsScreen extends ConsumerWidget {
 
           return Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.surfaceBorder),
+              color: AppColors.surfaceContainer,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.outlineVariant),
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(24),
                 onTap: () {
                   HapticUtil.medium();
                   client.sendInstruction(cmd.instruction, source: 'quick_command');
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      backgroundColor: AppColors.surfaceElevated,
+                      backgroundColor: AppColors.surfaceContainerHighest,
                       content: Text(
                         'Triggered: "${cmd.label}"',
-                        style: AppTypography.bodyMedium.copyWith(color: AppColors.primaryLight),
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.onPrimaryContainer,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                   );
                 },
@@ -77,21 +91,21 @@ class QuickCommandsScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(14),
+                          color: color.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(18),
                         ),
-                        child: Icon(cmd.icon, size: 22, color: color),
+                        child: Icon(cmd.icon, size: 24, color: color),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               cmd.label,
-                              style: AppTypography.titleMedium.copyWith(
+                              style: AppTypography.headlineMedium.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -106,7 +120,11 @@ class QuickCommandsScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      IconButton(
+                      IconButton.filledTonal(
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.surfaceContainerHigh,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
                         icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.textMuted),
                         onPressed: () {
                           HapticUtil.selection();

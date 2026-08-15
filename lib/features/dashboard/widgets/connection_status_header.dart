@@ -25,18 +25,18 @@ class ConnectionStatusHeader extends ConsumerWidget {
     final projectName = activeProject?.name ?? 'ecommerce-admin';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.7),
-        border: const Border(
-          bottom: BorderSide(color: AppColors.surfaceBorder, width: 1),
+      padding: const EdgeInsets.fromLTRB(20, 10, 16, 14),
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        border: Border(
+          bottom: BorderSide(color: AppColors.outlineVariant, width: 1),
         ),
       ),
       child: SafeArea(
         bottom: false,
         child: Row(
           children: [
-            // Computer and project info
+            // Left Title & Status Gem
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,44 +46,57 @@ class ConnectionStatusHeader extends ConsumerWidget {
                     children: [
                       Text(
                         'ANTIGRAVITY',
-                        style: AppTypography.displayMedium.copyWith(
+                        style: AppTypography.titleMedium.copyWith(
                           fontSize: 16,
-                          letterSpacing: 1.5,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
                           color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // Live Pulsing Dot
+                      // M3 Expressive Live Status Chip
                       Container(
-                        width: 8,
-                        height: 8,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isOnline ? AppColors.statusSuccess : AppColors.statusError,
-                          boxShadow: [
-                            BoxShadow(
-                              color: (isOnline ? AppColors.statusSuccess : AppColors.statusError)
-                                  .withOpacity(0.5),
-                              blurRadius: 6,
-                              spreadRadius: 2,
+                          color: isOnline
+                              ? AppColors.tertiaryContainer
+                              : AppColors.errorContainer,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isOnline
+                                    ? AppColors.tertiary
+                                    : AppColors.statusError,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              connectionStatus.label,
+                              style: AppTypography.labelSmall.copyWith(
+                                fontSize: 10,
+                                color: isOnline
+                                    ? AppColors.onTertiaryContainer
+                                    : AppColors.onErrorContainer,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        connectionStatus.label,
-                        style: AppTypography.labelSmall.copyWith(
-                          color: isOnline ? AppColors.statusSuccess : AppColors.textMuted,
-                        ),
-                      ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
-                      Icon(Icons.laptop_mac_rounded, size: 14, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
+                      Icon(Icons.laptop_mac_rounded, size: 14, color: AppColors.textMuted),
+                      const SizedBox(width: 5),
                       Flexible(
                         child: Text(
                           computerName,
@@ -95,32 +108,35 @@ class ConnectionStatusHeader extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(width: 3, height: 3, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.textMuted)),
-                      const SizedBox(width: 8),
-                      // Project Chip
+                      // Project Selector Pill
                       InkWell(
                         onTap: () {
                           HapticUtil.selection();
                           context.go('/projects');
                         },
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceBorder,
-                            borderRadius: BorderRadius.circular(6),
+                            color: AppColors.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.outlineVariant),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.folder_outlined, size: 12, color: AppColors.primaryLight),
-                              const SizedBox(width: 4),
+                              const Icon(Icons.folder_rounded, size: 12, color: AppColors.primary),
+                              const SizedBox(width: 5),
                               Text(
                                 projectName,
                                 style: AppTypography.labelSmall.copyWith(
                                   color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
+                              const SizedBox(width: 2),
+                              const Icon(Icons.keyboard_arrow_down_rounded,
+                                  size: 14, color: AppColors.textMuted),
                             ],
                           ),
                         ),
@@ -131,21 +147,30 @@ class ConnectionStatusHeader extends ConsumerWidget {
               ),
             ),
 
-            // Pairing / Settings Shortcuts
-            IconButton(
+            // Top Action Shortcuts
+            IconButton.filledTonal(
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.surfaceContainerHigh,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
               onPressed: () {
                 HapticUtil.selection();
                 context.push('/pairing');
               },
-              icon: const Icon(Icons.qr_code_scanner_rounded, color: AppColors.primaryLight),
+              icon: const Icon(Icons.qr_code_scanner_rounded, size: 18, color: AppColors.primary),
               tooltip: 'Pair Device',
             ),
-            IconButton(
+            const SizedBox(width: 8),
+            IconButton.filledTonal(
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.surfaceContainerHigh,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
               onPressed: () {
                 HapticUtil.selection();
                 context.go('/settings');
               },
-              icon: const Icon(Icons.tune_rounded, color: AppColors.textSecondary),
+              icon: const Icon(Icons.tune_rounded, size: 18, color: AppColors.textSecondary),
               tooltip: 'Settings',
             ),
           ],

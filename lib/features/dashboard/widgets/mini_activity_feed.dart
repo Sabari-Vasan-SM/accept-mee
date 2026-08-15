@@ -14,19 +14,19 @@ class MiniActivityFeed extends ConsumerWidget {
   IconData _getEventIcon(ActivityType type) {
     switch (type) {
       case ActivityType.fileEdit:
-        return Icons.edit_document;
+        return Icons.edit_note_rounded;
       case ActivityType.terminalCommand:
         return Icons.terminal_rounded;
       case ActivityType.testRun:
         return Icons.science_rounded;
       case ActivityType.approvalGranted:
-        return Icons.verified_rounded;
+        return Icons.verified_user_rounded;
       case ActivityType.approvalDenied:
-        return Icons.block_rounded;
+        return Icons.cancel_rounded;
       case ActivityType.userInstruction:
-        return Icons.chat_bubble_outline_rounded;
+        return Icons.forum_rounded;
       case ActivityType.taskComplete:
-        return Icons.check_circle_rounded;
+        return Icons.task_alt_rounded;
       case ActivityType.errorWarning:
         return Icons.warning_amber_rounded;
     }
@@ -39,13 +39,13 @@ class MiniActivityFeed extends ConsumerWidget {
       case ActivityType.terminalCommand:
         return AppColors.secondary;
       case ActivityType.testRun:
-        return AppColors.statusSuccess;
+        return AppColors.tertiary;
       case ActivityType.approvalGranted:
         return AppColors.statusSuccess;
       case ActivityType.approvalDenied:
         return AppColors.statusError;
       case ActivityType.userInstruction:
-        return AppColors.primaryLight;
+        return AppColors.onPrimaryContainer;
       case ActivityType.taskComplete:
         return AppColors.statusSuccess;
       case ActivityType.errorWarning:
@@ -67,40 +67,39 @@ class MiniActivityFeed extends ConsumerWidget {
           children: [
             Text(
               'Recent Activity',
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTypography.headlineMedium.copyWith(fontSize: 18),
             ),
-            TextButton(
+            TextButton.icon(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              ),
               onPressed: () {
                 HapticUtil.selection();
                 context.go('/activity');
               },
-              child: Row(
-                children: [
-                  Text(
-                    'Live Stream',
-                    style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
-                  ),
-                  const SizedBox(width: 2),
-                  const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.primary),
-                ],
+              label: Text(
+                'Live Stream',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 14),
             ),
           ],
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
         if (recentEvents.isEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.surfaceBorder),
+              color: AppColors.surfaceContainer,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.outlineVariant),
             ),
             child: Center(
               child: Text(
@@ -110,56 +109,70 @@ class MiniActivityFeed extends ConsumerWidget {
             ),
           )
         else
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.surfaceBorder),
-            ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: recentEvents.length,
-              separatorBuilder: (ctx, idx) => const Divider(height: 1, indent: 56),
-              itemBuilder: (context, index) {
-                final item = recentEvents[index];
-                final iconColor = _getEventColor(item.type);
+          Material(
+            color: AppColors.surfaceContainer,
+            borderRadius: BorderRadius.circular(26),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(color: AppColors.outlineVariant),
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: recentEvents.length,
+                separatorBuilder: (ctx, idx) => const Divider(height: 1, indent: 64),
+                itemBuilder: (context, index) {
+                  final item = recentEvents[index];
+                  final iconColor = _getEventColor(item.type);
 
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.15),
-                      shape: BoxShape.circle,
+                  return ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: iconColor.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(_getEventIcon(item.type), size: 18, color: iconColor),
                     ),
-                    child: Icon(_getEventIcon(item.type), size: 16, color: iconColor),
-                  ),
-                  title: Text(
-                    item.title,
-                    style: AppTypography.bodyLarge.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                    title: Text(
+                      item.title,
+                      style: AppTypography.titleMedium.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    item.description,
-                    style: AppTypography.bodyMedium.copyWith(fontSize: 12),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: Text(
-                    DateUtil.formatTimeAgo(item.timestamp),
-                    style: AppTypography.labelSmall.copyWith(fontSize: 10),
-                  ),
-                  onTap: () {
-                    HapticUtil.selection();
-                    context.go('/activity');
-                  },
-                );
-              },
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        item.description,
+                        style: AppTypography.bodyMedium.copyWith(fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLowest,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        DateUtil.formatTimeAgo(item.timestamp),
+                        style: AppTypography.labelSmall.copyWith(fontSize: 10),
+                      ),
+                    ),
+                    onTap: () {
+                      HapticUtil.selection();
+                      context.go('/activity');
+                    },
+                  );
+                },
+              ),
             ),
           ),
       ],

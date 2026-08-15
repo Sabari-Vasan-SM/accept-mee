@@ -1,60 +1,58 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens for Antigravity AI Mobile Companion
+/// Material 3 Expressive Solid Color System for Antigravity AI (No Gradients)
 class AppColors {
-  // Backgrounds - Deep Obsidian & Void Dark
-  static const Color background = Color(0xFF0D0F14);
-  static const Color surface = Color(0xFF161922);
-  static const Color surfaceElevated = Color(0xFF1E222E);
-  static const Color surfaceCard = Color(0xFF222736);
-  static const Color surfaceCardGlass = Color(0xCC1A1E29);
-  static const Color surfaceBorder = Color(0xFF2B3242);
-  static const Color surfaceBorderHighlight = Color(0xFF3E475E);
+  // Primary Expressive Palette - Electric Cyan & Radiant Turquoise
+  static const Color primary = Color(0xFF00E5FF);
+  static const Color onPrimary = Color(0xFF00363D);
+  static const Color primaryContainer = Color(0xFF004F58);
+  static const Color onPrimaryContainer = Color(0xFF8CF3FF);
 
-  // Brand Accents - Electric Cyan & Galactic Indigo
-  static const Color primary = Color(0xFF00E5FF); // Electric Cyan
-  static const Color primaryLight = Color(0xFF6EFAFF);
-  static const Color primaryDark = Color(0xFF00A8BD);
-  static const Color secondary = Color(0xFF7C4DFF); // Deep Purple
-  static const Color accentIndigo = Color(0xFF6366F1);
+  // Secondary Expressive Palette - Radiant Cyber Violet
+  static const Color secondary = Color(0xFF9D65FF);
+  static const Color onSecondary = Color(0xFF260058);
+  static const Color secondaryContainer = Color(0xFF430091);
+  static const Color onSecondaryContainer = Color(0xFFE9DDFF);
 
-  // Status Indicators
-  static const Color statusWorking = Color(0xFF00E5FF); // Cyan
-  static const Color statusIdle = Color(0xFF94A3B8); // Slate
-  static const Color statusSuccess = Color(0xFF10B981); // Emerald Green
-  static const Color statusWarning = Color(0xFFF59E0B); // Amber / Warning
-  static const Color statusError = Color(0xFFEF4444); // Red / Danger
-  static const Color statusApproval = Color(0xFFFF9100); // Glowing Orange
-  static const Color statusPaused = Color(0xFF8B5CF6); // Violet
+  // Tertiary Palette - Luminous Emerald
+  static const Color tertiary = Color(0xFF00E676);
+  static const Color onTertiary = Color(0xFF003919);
+  static const Color tertiaryContainer = Color(0xFF005327);
+  static const Color onTertiaryContainer = Color(0xFF6BFF9A);
+
+  // Surface Tonal Hierarchy (Material 3 Expressive)
+  static const Color surfaceContainerLowest = Color(0xFF0A0C10);
+  static const Color surfaceContainerLow = Color(0xFF11141B);
+  static const Color surface = Color(0xFF151922);
+  static const Color surfaceContainer = Color(0xFF1A1F2B);
+  static const Color surfaceContainerHigh = Color(0xFF222838);
+  static const Color surfaceContainerHighest = Color(0xFF2B3347);
+
+  // Outlines & Borders
+  static const Color outline = Color(0xFF3B465E);
+  static const Color outlineVariant = Color(0xFF262D3D);
+  static const Color surfaceBorderHighlight = Color(0xFF4A5777);
+
+  // Status Colors
+  static const Color statusWorking = Color(0xFF00E5FF);
+  static const Color statusIdle = Color(0xFF94A3B8);
+  static const Color statusSuccess = Color(0xFF10B981);
+  static const Color statusWarning = Color(0xFFF59E0B);
+  static const Color statusError = Color(0xFFFF453A);
+  static const Color statusApproval = Color(0xFFFF9500);
+  static const Color statusPaused = Color(0xFFA855F7);
+
+  // Error Containers
+  static const Color errorContainer = Color(0xFF4A1010);
+  static const Color onErrorContainer = Color(0xFFFFB4AB);
+
+  // Approval Container (High Impact Callout)
+  static const Color approvalContainer = Color(0xFF3D2100);
+  static const Color onApprovalContainer = Color(0xFFFFDCBE);
 
   // Text Colors
-  static const Color textPrimary = Color(0xFFF8FAFC);
+  static const Color textPrimary = Color(0xFFF1F5F9);
   static const Color textSecondary = Color(0xFF94A3B8);
   static const Color textMuted = Color(0xFF64748B);
-  static const Color textInverse = Color(0xFF0F172A);
-
-  // Gradients
-  static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF00E5FF), Color(0xFF7C4DFF)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient approvalGradient = LinearGradient(
-    colors: [Color(0xFFFF9100), Color(0xFFFF5252)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient successGradient = LinearGradient(
-    colors: [Color(0xFF10B981), Color(0xFF059669)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFF1E222E), Color(0xFF161922)],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
+  static const Color textInverse = Color(0xFF0B0F17);
 }

@@ -45,34 +45,21 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border(top: BorderSide(color: AppColors.surfaceBorderHighlight, width: 1.5)),
+        color: AppColors.surfaceContainerHigh,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
       ),
       padding: EdgeInsets.only(
-        top: 12,
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        top: 8,
+        left: 24,
+        right: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 28,
       ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Drag Handle
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceBorderHighlight,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
 
             // Header Title & Risk Tag
             Row(
@@ -81,42 +68,42 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                 Expanded(
                   child: Text(
                     req.title,
-                    style: AppTypography.titleLarge.copyWith(fontSize: 18),
+                    style: AppTypography.headlineMedium.copyWith(fontSize: 20),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.15),
+                    color: riskColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: riskColor.withOpacity(0.4)),
+                    border: Border.all(color: riskColor.withValues(alpha: 0.4)),
                   ),
                   child: Text(
                     '${req.riskLevel.name.toUpperCase()} RISK',
                     style: AppTypography.labelSmall.copyWith(
                       color: riskColor,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
 
             // Command / Action Payload Box
             Text(
-              'Requested Command / Action',
+              'Requested Command',
               style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.surfaceBorder),
+                color: AppColors.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppColors.outlineVariant),
               ),
               child: SelectableText(
                 req.details.command ?? req.description,
@@ -124,29 +111,29 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
 
             // Metadata Grid
-            _buildMetaRow('Project', req.project, Icons.folder_outlined),
-            const SizedBox(height: 8),
+            _buildMetaRow('Project', req.project, Icons.folder_rounded),
+            const SizedBox(height: 10),
             _buildMetaRow('Device', req.device, Icons.laptop_mac_rounded),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             _buildMetaRow('Requested', DateUtil.formatTimeAgo(req.createdAt), Icons.schedule_rounded),
 
             if (req.details.impact != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
                 'Impact Analysis',
                 style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceCard,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.surfaceBorder),
+                  color: AppColors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.outlineVariant),
                 ),
                 child: Text(
                   req.details.impact!,
@@ -156,7 +143,7 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
             ],
 
             if (_showReasonField) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               TextField(
                 controller: _reasonController,
                 style: AppTypography.bodyLarge,
@@ -164,18 +151,18 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                   hintText: 'Optional denial feedback or instructions...',
                   hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
                   filled: true,
-                  fillColor: AppColors.background,
+                  fillColor: AppColors.surfaceContainerLowest,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.surfaceBorder),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: AppColors.outlineVariant),
                   ),
                 ),
               ),
             ],
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
 
-            // Large Touch Action Buttons
+            // Action Buttons
             Row(
               children: [
                 // DENY BUTTON
@@ -186,7 +173,7 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                       foregroundColor: AppColors.statusError,
                       side: const BorderSide(color: AppColors.statusError, width: 1.5),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     ),
                     onPressed: () {
                       if (!_showReasonField) {
@@ -203,10 +190,10 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                       }
                     },
                     child: Text(
-                      _showReasonField ? 'CONFIRM DENY' : 'DENY',
+                      _showReasonField ? 'CONFIRM' : 'DENY',
                       style: AppTypography.labelLarge.copyWith(
                         color: AppColors.statusError,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
@@ -217,12 +204,12 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                 // ALLOW ONCE
                 Expanded(
                   flex: 4,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
                       backgroundColor: AppColors.statusSuccess,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     ),
                     onPressed: () {
                       HapticUtil.success();
@@ -233,7 +220,7 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                       'ALLOW ONCE',
                       style: AppTypography.labelLarge.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ),
@@ -244,12 +231,12 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                 // ALWAYS ALLOW
                 Expanded(
                   flex: 4,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondary,
-                      foregroundColor: Colors.white,
+                  child: FilledButton.tonal(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.secondaryContainer,
+                      foregroundColor: AppColors.onSecondaryContainer,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     ),
                     onPressed: () {
                       HapticUtil.success();
@@ -259,8 +246,8 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
                     child: Text(
                       'ALWAYS',
                       style: AppTypography.labelLarge.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
+                        color: AppColors.onSecondaryContainer,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ),
@@ -276,8 +263,8 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
   Widget _buildMetaRow(String label, String value, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: AppColors.textMuted),
-        const SizedBox(width: 6),
+        Icon(icon, size: 15, color: AppColors.textMuted),
+        const SizedBox(width: 8),
         Text(
           '$label: ',
           style: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
@@ -287,7 +274,7 @@ class _ApprovalDetailSheetState extends ConsumerState<ApprovalDetailSheet> {
             value,
             style: AppTypography.bodyMedium.copyWith(
               color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
             overflow: TextOverflow.ellipsis,
           ),

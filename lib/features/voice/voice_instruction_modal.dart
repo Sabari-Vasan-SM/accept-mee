@@ -57,12 +57,11 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        border: Border(top: BorderSide(color: AppColors.surfaceBorderHighlight, width: 1.5)),
+        color: AppColors.surfaceContainerHigh,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
       ),
       padding: EdgeInsets.only(
-        top: 16,
+        top: 12,
         left: 24,
         right: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 32,
@@ -71,48 +70,43 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Drag handle
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceBorderHighlight,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
 
           // Header
           Text(
-            isListening ? 'Listening to Instruction...' : 'Voice Instruction Ready',
-            style: AppTypography.titleLarge.copyWith(fontSize: 20),
+            isListening ? 'Listening...' : 'Voice Instruction Ready',
+            style: AppTypography.headlineMedium.copyWith(fontSize: 22),
           ),
           const SizedBox(height: 6),
           Text(
             isListening
-                ? 'Speak clearly into your phone mic'
-                : 'Review transcribed instruction before sending',
+                ? 'Speak instructions naturally into your mic'
+                : 'Review transcribed text before sending to Antigravity',
             style: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
           ),
 
           const SizedBox(height: 28),
 
-          // Animated Audio Waveform
+          // Animated M3 Equalizer / Waveform
           if (isListening) ...[
-            SizedBox(
-              height: 48,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: AppColors.outlineVariant),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(14, (index) {
-                  final height = 10.0 + (amplitude * 38.0 * (0.4 + (index % 5) * 0.15));
+                  final height = 12.0 + (amplitude * 38.0 * (0.4 + (index % 5) * 0.15));
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
                     width: 4,
                     height: height.clamp(8.0, 48.0),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(3),
+                      color: index % 2 == 0 ? AppColors.primary : AppColors.secondary,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   );
                 }),
@@ -124,14 +118,14 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
           // Transcribed Text Container
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(minHeight: 90),
-            padding: const EdgeInsets.all(16),
+            constraints: const BoxConstraints(minHeight: 100),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(18),
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: isListening ? AppColors.primary : AppColors.surfaceBorder,
-                width: 1.5,
+                color: isListening ? AppColors.primary : AppColors.outlineVariant,
+                width: isListening ? 2 : 1,
               ),
             ),
             child: TextField(
@@ -140,10 +134,14 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
                 setState(() => _isEditing = true);
               },
               maxLines: 4,
-              style: AppTypography.bodyLarge.copyWith(fontSize: 16, height: 1.4),
+              style: AppTypography.bodyLarge.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+              ),
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: isListening ? 'Speaking...' : 'Enter or speak instructions...',
+                hintText: isListening ? 'Listening to voice...' : 'Enter or speak instructions...',
                 hintStyle: AppTypography.bodyLarge.copyWith(color: AppColors.textMuted),
               ),
             ),
@@ -153,20 +151,25 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
 
           // Action Controls
           if (isListening) ...[
-            // Stop & Review Button
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.surfaceBorderHighlight,
+            FilledButton.tonal(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.surfaceContainerHighest,
                 foregroundColor: AppColors.textPrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               ),
-              icon: const Icon(Icons.stop_rounded, size: 20),
-              label: const Text('Stop Recording & Review'),
               onPressed: () async {
                 HapticUtil.medium();
                 await speechService.stopListening();
               },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.stop_circle_rounded, size: 20, color: AppColors.statusError),
+                  const SizedBox(width: 8),
+                  Text('Stop Recording & Review', style: AppTypography.labelLarge),
+                ],
+              ),
             ),
           ] else ...[
             // Send or Cancel Confirmation
@@ -177,7 +180,7 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                     onPressed: () {
                       HapticUtil.selection();
@@ -192,12 +195,12 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
 
                 // Send
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textInverse,
+                      foregroundColor: AppColors.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       elevation: 4,
                     ),
                     onPressed: () {
@@ -209,12 +212,16 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            backgroundColor: AppColors.surfaceElevated,
+                            backgroundColor: AppColors.surfaceContainerHighest,
                             content: Text(
                               'Voice instruction sent to Antigravity!',
-                              style: AppTypography.bodyMedium.copyWith(color: AppColors.primaryLight),
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: AppColors.onPrimaryContainer,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
                         );
                       }
@@ -227,8 +234,8 @@ class _VoiceInstructionModalState extends ConsumerState<VoiceInstructionModal> {
                         Text(
                           'Send to Agent',
                           style: AppTypography.labelLarge.copyWith(
-                            color: AppColors.textInverse,
-                            fontWeight: FontWeight.w800,
+                            color: AppColors.onPrimary,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ],

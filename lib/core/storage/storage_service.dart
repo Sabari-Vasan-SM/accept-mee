@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StorageService {
@@ -18,7 +20,14 @@ class StorageService {
     return StorageService(prefs);
   }
 
-  String get serverHost => _prefs.getString(_keyServerHost) ?? '127.0.0.1';
+  static String get defaultHost {
+    if (!kIsWeb && Platform.isAndroid) {
+      return '10.0.2.2';
+    }
+    return '127.0.0.1';
+  }
+
+  String get serverHost => _prefs.getString(_keyServerHost) ?? defaultHost;
   Future<void> setServerHost(String host) => _prefs.setString(_keyServerHost, host);
 
   int get serverPort => _prefs.getInt(_keyServerPort) ?? 8765;

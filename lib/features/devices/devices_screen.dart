@@ -13,7 +13,7 @@ class DevicesScreen extends ConsumerWidget {
   IconData _getDeviceIcon(String type) {
     switch (type) {
       case 'desktop':
-        return Icons.desktop_windows_rounded;
+        return Icons.desktop_mac_rounded;
       case 'server':
         return Icons.dns_rounded;
       case 'laptop':
@@ -29,9 +29,13 @@ class DevicesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Connected Computers', style: AppTypography.titleLarge),
+        title: Text('Connected Computers', style: AppTypography.headlineMedium),
         actions: [
-          IconButton(
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surfaceContainerHigh,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
             icon: const Icon(Icons.add_rounded, color: AppColors.primary),
             tooltip: 'Pair New Computer',
             onPressed: () {
@@ -39,6 +43,7 @@ class DevicesScreen extends ConsumerWidget {
               context.push('/pairing');
             },
           ),
+          const SizedBox(width: 14),
         ],
       ),
       body: ListView.separated(
@@ -51,32 +56,41 @@ class DevicesScreen extends ConsumerWidget {
 
           return Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(20),
+              color: AppColors.surfaceContainer,
+              borderRadius: BorderRadius.circular(28),
               border: Border.all(
-                color: device.isCurrent ? AppColors.primary : AppColors.surfaceBorder,
+                color: device.isCurrent ? AppColors.primary : AppColors.outlineVariant,
                 width: device.isCurrent ? 2 : 1,
               ),
+              boxShadow: device.isCurrent
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.18),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ]
+                  : null,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: isOnline
-                          ? AppColors.primary.withOpacity(0.15)
-                          : AppColors.surfaceElevated,
-                      borderRadius: BorderRadius.circular(14),
+                          ? AppColors.primaryContainer
+                          : AppColors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
                       _getDeviceIcon(device.type),
                       size: 24,
-                      color: isOnline ? AppColors.primary : AppColors.textMuted,
+                      color: isOnline ? AppColors.onPrimaryContainer : AppColors.textMuted,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +99,7 @@ class DevicesScreen extends ConsumerWidget {
                           children: [
                             Text(
                               device.name,
-                              style: AppTypography.titleMedium.copyWith(
+                              style: AppTypography.headlineMedium.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -93,17 +107,17 @@ class DevicesScreen extends ConsumerWidget {
                             if (device.isCurrent) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: AppColors.primaryContainer,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
                                   'CURRENT',
                                   style: AppTypography.labelSmall.copyWith(
-                                    color: AppColors.primary,
+                                    color: AppColors.onPrimaryContainer,
                                     fontSize: 10,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
                               ),
@@ -118,14 +132,15 @@ class DevicesScreen extends ConsumerWidget {
                               height: 7,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: isOnline ? AppColors.statusSuccess : AppColors.textMuted,
+                                color: isOnline ? AppColors.tertiary : AppColors.textMuted,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
                               isOnline ? 'Online • ${device.ip}' : 'Offline',
                               style: AppTypography.labelSmall.copyWith(
-                                color: isOnline ? AppColors.statusSuccess : AppColors.textMuted,
+                                color: isOnline ? AppColors.tertiary : AppColors.textMuted,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],
@@ -147,10 +162,21 @@ class DevicesScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(18),
           child: SizedBox(
-            height: 52,
-            child: ElevatedButton.icon(
+            height: 56,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
               icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
-              label: const Text('Pair New Desktop Computer'),
+              label: Text(
+                'Pair New Desktop Computer',
+                style: AppTypography.labelLarge.copyWith(
+                  color: AppColors.onPrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               onPressed: () {
                 HapticUtil.selection();
                 context.push('/pairing');

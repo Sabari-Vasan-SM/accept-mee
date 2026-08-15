@@ -21,102 +21,107 @@ class QuickActionsRow extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Header
+        // Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'Quick Commands',
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTypography.headlineMedium.copyWith(fontSize: 18),
             ),
-            TextButton(
+            TextButton.icon(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              ),
               onPressed: () {
                 HapticUtil.selection();
                 context.push('/commands');
               },
-              child: Row(
-                children: [
-                  Text(
-                    'View All (${commands.length})',
-                    style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
-                  ),
-                  const SizedBox(width: 2),
-                  const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.primary),
-                ],
+              label: Text(
+                'View All (${commands.length})',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 14),
             ),
           ],
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
-        // 2x2 Grid of primary quick action buttons
+        // 2x2 Grid of Solid Expressive Command Tiles
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            childAspectRatio: 2.3,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 2.1,
           ),
           itemCount: topCommands.length,
           itemBuilder: (context, index) {
             final cmd = topCommands[index];
             final color = cmd.color ?? AppColors.primary;
 
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  HapticUtil.medium();
-                  client.sendInstruction(cmd.instruction, source: 'quick_command');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: AppColors.surfaceElevated,
-                      content: Text(
-                        'Sent: "${cmd.label}"',
-                        style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
-                      ),
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceCard,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.surfaceBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(cmd.icon, size: 18, color: color),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          cmd.label,
-                          style: AppTypography.labelLarge.copyWith(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainer,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppColors.outlineVariant),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    HapticUtil.medium();
+                    client.sendInstruction(cmd.instruction, source: 'quick_command');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: AppColors.surfaceContainerHighest,
+                        content: Text(
+                          'Dispatched: "${cmd.label}"',
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.onPrimaryContainer,
+                            fontWeight: FontWeight.w700,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
+                        duration: const Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                    ],
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(22),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(cmd.icon, size: 20, color: color),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            cmd.label,
+                            style: AppTypography.titleMedium.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -124,28 +129,27 @@ class QuickActionsRow extends ConsumerWidget {
           },
         ),
 
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
 
-        // Large Tap to Speak Voice Button
+        // Solid Material 3 Expressive Voice Pill Trigger (No Gradients)
         Container(
           width: double.infinity,
-          height: 62,
+          height: 64,
           decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(18),
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
+                color: AppColors.primary.withValues(alpha: 0.25),
                 blurRadius: 16,
-                spreadRadius: 1,
-                offset: const Offset(0, 4),
+                offset: const Offset(0, 6),
               ),
             ],
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(32),
               onTap: () {
                 HapticUtil.heavy();
                 showModalBottomSheet(
@@ -156,25 +160,33 @@ class QuickActionsRow extends ConsumerWidget {
                 );
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.mic_rounded,
-                      color: AppColors.textInverse,
-                      size: 26,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: AppColors.onPrimary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.mic_rounded,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
                     ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                          begin: const Offset(0.9, 0.9),
+                          begin: const Offset(0.95, 0.95),
                           end: const Offset(1.1, 1.1),
-                          duration: 1200.ms,
+                          duration: 1000.ms,
                         ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Text(
                       'Tap to Speak Instruction',
                       style: AppTypography.titleMedium.copyWith(
-                        color: AppColors.textInverse,
-                        fontWeight: FontWeight.w800,
+                        color: AppColors.onPrimary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
                       ),
                     ),
                   ],

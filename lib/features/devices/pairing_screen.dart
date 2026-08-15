@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/utils/haptic_feedback_util.dart';
 import '../../../models/pairing_payload.dart';
+import '../../../core/storage/storage_service.dart';
 import '../../../providers/antigravity_provider.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../providers/storage_provider.dart';
@@ -18,12 +19,18 @@ class PairingScreen extends ConsumerStatefulWidget {
 
 class _PairingScreenState extends ConsumerState<PairingScreen> {
   final MobileScannerController _scannerController = MobileScannerController();
-  final _hostController = TextEditingController(text: '127.0.0.1');
+  late final TextEditingController _hostController;
   final _portController = TextEditingController(text: '8765');
   final _tokenController = TextEditingController();
 
   bool _isManual = false;
   bool _isConnecting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hostController = TextEditingController(text: StorageService.defaultHost);
+  }
 
   @override
   void dispose() {
@@ -58,22 +65,26 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: AppColors.surfaceElevated,
+            backgroundColor: AppColors.surfaceContainerHighest,
             content: Text(
               'Successfully paired with ${payload.deviceName}!',
               style: AppTypography.bodyMedium.copyWith(color: AppColors.statusSuccess),
             ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
         );
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: AppColors.surfaceElevated,
+            backgroundColor: AppColors.errorContainer,
             content: Text(
               'Failed to connect to ${payload.host}:${payload.port}',
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.statusError),
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.onErrorContainer),
             ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
         );
       }
@@ -84,9 +95,13 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pair Desktop Computer', style: AppTypography.titleLarge),
+        title: Text('Pair Desktop Computer', style: AppTypography.headlineMedium),
         actions: [
-          IconButton(
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surfaceContainerHigh,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
             icon: Icon(_isManual ? Icons.qr_code_scanner_rounded : Icons.keyboard_rounded),
             onPressed: () {
               HapticUtil.selection();
@@ -94,6 +109,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
             },
             tooltip: _isManual ? 'Scan QR Code' : 'Manual Setup',
           ),
+          const SizedBox(width: 14),
         ],
       ),
       body: _isManual ? _buildManualForm() : _buildScannerView(),
@@ -122,15 +138,15 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         // Scanning Target Overlay
         Center(
           child: Container(
-            width: 260,
-            height: 260,
+            width: 270,
+            height: 270,
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primary, width: 2.5),
-              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.primary, width: 3),
+              borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.2),
-                  blurRadius: 20,
+                  color: AppColors.primary.withValues(alpha: 0.25),
+                  blurRadius: 28,
                   spreadRadius: 2,
                 ),
               ],
@@ -140,15 +156,15 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
 
         // Bottom instruction card
         Positioned(
-          bottom: 40,
+          bottom: 36,
           left: 20,
           right: 20,
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              color: AppColors.surfaceCardGlass,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.surfaceBorderHighlight),
+              color: AppColors.surfaceContainerHigh.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: AppColors.outlineVariant),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -158,28 +174,31 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                   textAlign: TextAlign.center,
                   style: AppTypography.bodyMedium,
                 ),
-                const SizedBox(height: 14),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.surfaceBorder,
-                    foregroundColor: AppColors.primary,
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: FilledButton.tonal(
+                    style: FilledButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    onPressed: () {
+                      final host = StorageService.defaultHost;
+                      _handlePairingPayload(
+                        PairingPayload(
+                          version: '1.0',
+                          protocol: 'antigravity-bridge',
+                          host: host,
+                          port: 8765,
+                          token: 'test_token_quick_pair',
+                          deviceName: 'MacBook Pro (M3 Max)',
+                          wsUrl: 'ws://$host:8765/ws',
+                          httpUrl: 'http://$host:8765/api/v1',
+                        ),
+                      );
+                    },
+                    child: Text('Quick Pair Desktop (${StorageService.defaultHost}:8765)'),
                   ),
-                  onPressed: () {
-                    // Fast pair with local companion server for testing
-                    _handlePairingPayload(
-                      const PairingPayload(
-                        version: '1.0',
-                        protocol: 'antigravity-bridge',
-                        host: '127.0.0.1',
-                        port: 8765,
-                        token: 'test_token_quick_pair',
-                        deviceName: 'MacBook Pro (M3 Max)',
-                        wsUrl: 'ws://127.0.0.1:8765/ws',
-                        httpUrl: 'http://127.0.0.1:8765/api/v1',
-                      ),
-                    );
-                  },
-                  child: const Text('Quick Pair Localhost (8765)'),
                 ),
               ],
             ),
@@ -188,7 +207,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
 
         if (_isConnecting)
           Container(
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             child: const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             ),
@@ -205,7 +224,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         children: [
           Text(
             'Manual Connection Details',
-            style: AppTypography.titleLarge.copyWith(fontSize: 18),
+            style: AppTypography.headlineMedium.copyWith(fontSize: 18),
           ),
           const SizedBox(height: 8),
           Text(
@@ -222,10 +241,10 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
             decoration: InputDecoration(
               hintText: '192.168.1.100 or 127.0.0.1',
               filled: true,
-              fillColor: AppColors.surfaceCard,
+              fillColor: AppColors.surfaceContainer,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.surfaceBorder),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
               ),
             ),
           ),
@@ -241,10 +260,10 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
             decoration: InputDecoration(
               hintText: '8765',
               filled: true,
-              fillColor: AppColors.surfaceCard,
+              fillColor: AppColors.surfaceContainer,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.surfaceBorder),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
               ),
             ),
           ),
@@ -260,10 +279,10 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
             decoration: InputDecoration(
               hintText: 'e.g. 7f8a9c2e...',
               filled: true,
-              fillColor: AppColors.surfaceCard,
+              fillColor: AppColors.surfaceContainer,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.surfaceBorder),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
               ),
             ),
           ),
@@ -273,7 +292,10 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
           SizedBox(
             width: double.infinity,
             height: 54,
-            child: ElevatedButton(
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              ),
               onPressed: _isConnecting
                   ? null
                   : () {
@@ -296,7 +318,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                       }
                     },
               child: _isConnecting
-                  ? const CircularProgressIndicator(color: AppColors.textInverse)
+                  ? const CircularProgressIndicator(color: AppColors.onPrimary)
                   : const Text('Connect to Host'),
             ),
           ),
