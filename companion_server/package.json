@@ -1,11 +1,21 @@
 {
   "name": "antigravity-companion-server",
-  "version": "1.0.0",
-  "description": "Desktop Companion Server for Antigravity AI Mobile Controller",
+  "version": "2.0.0",
+  "description": "Approval broker that lets the Antigravity companion phone app answer PreToolUse hooks",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "test": "node --test test/*.test.js",
+    "install-hook": "node install-hook.js",
+    "reset-token": "node index.js --reset-token"
+  },
+  "bin": {
+    "antigravity-companion": "index.js",
+    "antigravity-companion-hook": "hook.js"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "express": "^4.21.2",

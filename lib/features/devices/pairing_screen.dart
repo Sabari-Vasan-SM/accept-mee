@@ -8,7 +8,6 @@ import '../../../models/pairing_payload.dart';
 import '../../../core/storage/storage_service.dart';
 import '../../../providers/antigravity_provider.dart';
 import '../../../providers/settings_provider.dart';
-import '../../../providers/storage_provider.dart';
 
 class PairingScreen extends ConsumerStatefulWidget {
   const PairingScreen({super.key});
@@ -45,13 +44,12 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
     setState(() => _isConnecting = true);
     HapticUtil.success();
 
-    final storage = ref.read(storageServiceProvider);
-    await storage.setServerHost(payload.host);
-    await storage.setServerPort(payload.port);
-    await storage.setAuthToken(payload.token);
-    await storage.setDeviceName(payload.deviceName);
-
-    await ref.read(settingsProvider.notifier).updateServer(payload.host, payload.port);
+    // Go through the notifier rather than StorageService directly, so the
+    // Settings screen's "paired" state updates with us.
+    final settings = ref.read(settingsProvider.notifier);
+    await settings.updateServer(payload.host, payload.port);
+    await settings.setAuthToken(payload.token);
+    await settings.setDeviceName(payload.deviceName);
 
     final client = ref.read(antigravityClientProvider);
     final success = await client.connect(
@@ -170,34 +168,19 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Scan the QR code shown in your terminal / companion server.',
+                  'Scan the QR code printed by the companion server '
+                  '(run "npm start" in companion_server).',
                   textAlign: TextAlign.center,
                   style: AppTypography.bodyMedium,
                 ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: FilledButton.tonal(
-                    style: FilledButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    onPressed: () {
-                      final host = StorageService.defaultHost;
-                      _handlePairingPayload(
-                        PairingPayload(
-                          version: '1.0',
-                          protocol: 'antigravity-bridge',
-                          host: host,
-                          port: 8765,
-                          token: 'test_token_quick_pair',
-                          deviceName: 'MacBook Pro (M3 Max)',
-                          wsUrl: 'ws://$host:8765/ws',
-                          httpUrl: 'http://$host:8765/api/v1',
-                        ),
-                      );
-                    },
-                    child: Text('Quick Pair Desktop (${StorageService.defaultHost}:8765)'),
+                const SizedBox(height: 12),
+                Text(
+                  'No camera? Use the keyboard button above to enter the host, '
+                  'port and token by hand.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyMedium.copyWith(
+                    fontSize: 12,
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],
@@ -302,20 +285,38 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                       final host = _hostController.text.trim();
                       final port = int.tryParse(_portController.text.trim()) ?? 8765;
                       final token = _tokenController.text.trim();
-                      if (host.isNotEmpty) {
-                        _handlePairingPayload(
-                          PairingPayload(
-                            version: '1.0',
-                            protocol: 'antigravity-bridge',
-                            host: host,
-                            port: port,
-                            token: token,
-                            deviceName: 'Custom Host ($host)',
-                            wsUrl: 'ws://$host:$port/ws',
-                            httpUrl: 'http://$host:$port/api/v1',
+
+                      // The token is mandatory now that the server enforces it;
+                      // pairing without one would just fail with a 401.
+                      if (host.isEmpty || token.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: AppColors.errorContainer,
+                            content: Text(
+                              'Enter both a host and the pairing token printed by the server.',
+                              style: AppTypography.bodyMedium
+                                  .copyWith(color: AppColors.onErrorContainer),
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
                           ),
                         );
+                        return;
                       }
+
+                      _handlePairingPayload(
+                        PairingPayload(
+                          version: '2.0',
+                          protocol: 'antigravity-bridge',
+                          host: host,
+                          port: port,
+                          token: token,
+                          deviceName: 'Custom Host ($host)',
+                          wsUrl: 'ws://$host:$port/ws',
+                          httpUrl: 'http://$host:$port/api/v1',
+                        ),
+                      );
                     },
               child: _isConnecting
                   ? const CircularProgressIndicator(color: AppColors.onPrimary)

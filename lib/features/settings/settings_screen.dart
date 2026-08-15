@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/utils/haptic_feedback_util.dart';
@@ -165,8 +166,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           const SizedBox(height: 24),
 
-          // Section: Simulation & Testing Modes
-          _buildSectionHeader('Testing & Simulation Scenarios'),
+          // Section: Pairing
+          _buildSectionHeader('Pairing'),
           const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
@@ -176,68 +177,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             child: Column(
               children: [
-                SwitchListTile(
-                  title: Text('Offline Simulator Client', style: AppTypography.titleMedium.copyWith(fontSize: 15)),
-                  subtitle: Text('Run standalone interactive simulation without desktop server', style: AppTypography.bodyMedium.copyWith(fontSize: 12)),
-                  value: settings.useMockClient,
-                  activeTrackColor: AppColors.primary,
-                  onChanged: (val) {
-                    HapticUtil.selection();
-                    settingsNotifier.setUseMockClient(val);
-                  },
-                ),
-                const Divider(height: 1),
                 ListTile(
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.statusWarning.withValues(alpha: 0.16),
+                      color: (settings.isPaired ? AppColors.statusSuccess : AppColors.statusWarning)
+                          .withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.bolt_rounded, color: AppColors.statusWarning, size: 20),
+                    child: Icon(
+                      settings.isPaired ? Icons.verified_rounded : Icons.qr_code_scanner_rounded,
+                      color: settings.isPaired ? AppColors.statusSuccess : AppColors.statusWarning,
+                      size: 20,
+                    ),
                   ),
-                  title: Text('Trigger DB Migration Approval', style: AppTypography.bodyLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w700)),
-                  subtitle: Text('Simulates arrival of a high-risk approval request', style: AppTypography.bodyMedium.copyWith(fontSize: 12)),
+                  title: Text(
+                    settings.isPaired ? 'Paired with desktop' : 'Not paired',
+                    style: AppTypography.bodyLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text(
+                    settings.isPaired
+                        ? 'Scan again if the desktop reports an invalid token'
+                        : 'Scan the QR code printed by the companion server',
+                    style: AppTypography.bodyMedium.copyWith(fontSize: 12),
+                  ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
                     HapticUtil.medium();
-                    client.triggerDemoScenario('db_migration');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: AppColors.surfaceContainerHighest,
-                        content: Text('Simulated approval request sent! Check Approvals tab.', style: AppTypography.bodyMedium),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                    );
+                    context.push('/pairing');
                   },
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(12),
+                if (settings.isPaired) ...[
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.statusError.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.link_off_rounded, color: AppColors.statusError, size: 20),
                     ),
-                    child: const Icon(Icons.build_circle_rounded, color: AppColors.primary, size: 20),
+                    title: Text('Forget this desktop',
+                        style: AppTypography.bodyLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w700)),
+                    subtitle: Text('Clears the stored pairing token from this phone',
+                        style: AppTypography.bodyMedium.copyWith(fontSize: 12)),
+                    onTap: () async {
+                      HapticUtil.medium();
+                      await settingsNotifier.clearAuth();
+                      await client.disconnect();
+                    },
                   ),
-                  title: Text('Trigger Production Build Approval', style: AppTypography.bodyLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w700)),
-                  subtitle: Text('Simulates npm run build permission request', style: AppTypography.bodyMedium.copyWith(fontSize: 12)),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {
-                    HapticUtil.medium();
-                    client.triggerDemoScenario('build');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: AppColors.surfaceContainerHighest,
-                        content: Text('Simulated build approval sent!', style: AppTypography.bodyMedium),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                    );
-                  },
-                ),
+                ],
               ],
             ),
           ),

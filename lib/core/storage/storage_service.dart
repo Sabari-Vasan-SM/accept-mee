@@ -9,7 +9,6 @@ class StorageService {
   static const String _keyDeviceName = 'antigravity_device_name';
   static const String _keyBiometricsEnabled = 'antigravity_biometrics_enabled';
   static const String _keyHapticsEnabled = 'antigravity_haptics_enabled';
-  static const String _keyUseMockClient = 'antigravity_use_mock_client';
 
   final SharedPreferences _prefs;
 
@@ -47,9 +46,7 @@ class StorageService {
   Future<void> setHapticsEnabled(bool enabled) =>
       _prefs.setBool(_keyHapticsEnabled, enabled);
 
-  bool get useMockClient => _prefs.getBool(_keyUseMockClient) ?? false;
-  Future<void> setUseMockClient(bool value) =>
-      _prefs.setBool(_keyUseMockClient, value);
+  bool get isPaired => (authToken ?? '').isNotEmpty;
 
   Future<void> clearSession() async {
     await _prefs.remove(_keyAuthToken);
