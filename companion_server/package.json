@@ -1,0 +1,16 @@
+{
+  "name": "antigravity-companion-server",
+  "version": "1.0.0",
+  "description": "Desktop Companion Server for Antigravity AI Mobile Controller",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.0",
+    "cors": "^2.8.5",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

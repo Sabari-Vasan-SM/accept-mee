@@ -1,0 +1,307 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_typography.dart';
+import '../../../core/utils/haptic_feedback_util.dart';
+import '../../../models/pairing_payload.dart';
+import '../../../providers/antigravity_provider.dart';
+import '../../../providers/settings_provider.dart';
+import '../../../providers/storage_provider.dart';
+
+class PairingScreen extends ConsumerStatefulWidget {
+  const PairingScreen({super.key});
+
+  @override
+  ConsumerState<PairingScreen> createState() => _PairingScreenState();
+}
+
+class _PairingScreenState extends ConsumerState<PairingScreen> {
+  final MobileScannerController _scannerController = MobileScannerController();
+  final _hostController = TextEditingController(text: '127.0.0.1');
+  final _portController = TextEditingController(text: '8765');
+  final _tokenController = TextEditingController();
+
+  bool _isManual = false;
+  bool _isConnecting = false;
+
+  @override
+  void dispose() {
+    _scannerController.dispose();
+    _hostController.dispose();
+    _portController.dispose();
+    _tokenController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handlePairingPayload(PairingPayload payload) async {
+    setState(() => _isConnecting = true);
+    HapticUtil.success();
+
+    final storage = ref.read(storageServiceProvider);
+    await storage.setServerHost(payload.host);
+    await storage.setServerPort(payload.port);
+    await storage.setAuthToken(payload.token);
+    await storage.setDeviceName(payload.deviceName);
+
+    await ref.read(settingsProvider.notifier).updateServer(payload.host, payload.port);
+
+    final client = ref.read(antigravityClientProvider);
+    final success = await client.connect(
+      host: payload.host,
+      port: payload.port,
+      token: payload.token,
+    );
+
+    if (mounted) {
+      setState(() => _isConnecting = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.surfaceElevated,
+            content: Text(
+              'Successfully paired with ${payload.deviceName}!',
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.statusSuccess),
+            ),
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.surfaceElevated,
+            content: Text(
+              'Failed to connect to ${payload.host}:${payload.port}',
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.statusError),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Pair Desktop Computer', style: AppTypography.titleLarge),
+        actions: [
+          IconButton(
+            icon: Icon(_isManual ? Icons.qr_code_scanner_rounded : Icons.keyboard_rounded),
+            onPressed: () {
+              HapticUtil.selection();
+              setState(() => _isManual = !_isManual);
+            },
+            tooltip: _isManual ? 'Scan QR Code' : 'Manual Setup',
+          ),
+        ],
+      ),
+      body: _isManual ? _buildManualForm() : _buildScannerView(),
+    );
+  }
+
+  Widget _buildScannerView() {
+    return Stack(
+      children: [
+        MobileScanner(
+          controller: _scannerController,
+          onDetect: (capture) {
+            final barcodes = capture.barcodes;
+            for (final barcode in barcodes) {
+              if (barcode.rawValue != null) {
+                final payload = PairingPayload.tryParse(barcode.rawValue!);
+                if (payload != null && !_isConnecting) {
+                  _handlePairingPayload(payload);
+                  break;
+                }
+              }
+            }
+          },
+        ),
+
+        // Scanning Target Overlay
+        Center(
+          child: Container(
+            width: 260,
+            height: 260,
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.primary, width: 2.5),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.2),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Bottom instruction card
+        Positioned(
+          bottom: 40,
+          left: 20,
+          right: 20,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceCardGlass,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.surfaceBorderHighlight),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Scan the QR code shown in your terminal / companion server.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyMedium,
+                ),
+                const SizedBox(height: 14),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.surfaceBorder,
+                    foregroundColor: AppColors.primary,
+                  ),
+                  onPressed: () {
+                    // Fast pair with local companion server for testing
+                    _handlePairingPayload(
+                      const PairingPayload(
+                        version: '1.0',
+                        protocol: 'antigravity-bridge',
+                        host: '127.0.0.1',
+                        port: 8765,
+                        token: 'test_token_quick_pair',
+                        deviceName: 'MacBook Pro (M3 Max)',
+                        wsUrl: 'ws://127.0.0.1:8765/ws',
+                        httpUrl: 'http://127.0.0.1:8765/api/v1',
+                      ),
+                    );
+                  },
+                  child: const Text('Quick Pair Localhost (8765)'),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        if (_isConnecting)
+          Container(
+            color: Colors.black.withOpacity(0.7),
+            child: const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildManualForm() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Manual Connection Details',
+            style: AppTypography.titleLarge.copyWith(fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Enter the IP address and port of your Antigravity companion server.',
+            style: AppTypography.bodyMedium,
+          ),
+          const SizedBox(height: 24),
+
+          Text('Host / IP Address', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _hostController,
+            style: AppTypography.bodyLarge,
+            decoration: InputDecoration(
+              hintText: '192.168.1.100 or 127.0.0.1',
+              filled: true,
+              fillColor: AppColors.surfaceCard,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: AppColors.surfaceBorder),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          Text('Port', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _portController,
+            keyboardType: TextInputType.number,
+            style: AppTypography.bodyLarge,
+            decoration: InputDecoration(
+              hintText: '8765',
+              filled: true,
+              fillColor: AppColors.surfaceCard,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: AppColors.surfaceBorder),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          Text('Pairing Security Token (Optional)',
+              style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _tokenController,
+            style: AppTypography.bodyLarge,
+            decoration: InputDecoration(
+              hintText: 'e.g. 7f8a9c2e...',
+              filled: true,
+              fillColor: AppColors.surfaceCard,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: AppColors.surfaceBorder),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 32),
+
+          SizedBox(
+            width: double.infinity,
+            height: 54,
+            child: ElevatedButton(
+              onPressed: _isConnecting
+                  ? null
+                  : () {
+                      final host = _hostController.text.trim();
+                      final port = int.tryParse(_portController.text.trim()) ?? 8765;
+                      final token = _tokenController.text.trim();
+                      if (host.isNotEmpty) {
+                        _handlePairingPayload(
+                          PairingPayload(
+                            version: '1.0',
+                            protocol: 'antigravity-bridge',
+                            host: host,
+                            port: port,
+                            token: token,
+                            deviceName: 'Custom Host ($host)',
+                            wsUrl: 'ws://$host:$port/ws',
+                            httpUrl: 'http://$host:$port/api/v1',
+                          ),
+                        );
+                      }
+                    },
+              child: _isConnecting
+                  ? const CircularProgressIndicator(color: AppColors.textInverse)
+                  : const Text('Connect to Host'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
